@@ -18,16 +18,21 @@ class ViewController: UIViewController {
     }
 
     @IBAction func updateTapped(_ sender: Any) {
+        textField.resignFirstResponder()
+        fLabel.text = ""
+        cLabel.text = ""
+
         let urlString = "\(self.urlString)?zip=\(textField.text ?? "")&appid=\(appId)"
-        print(urlString)
         guard let url = URL(string: urlString) else {
             presentAlert("Bad URL")
             return
         }
         let request = URLRequest(url: url)
         let session = URLSession(configuration: URLSessionConfiguration.default)
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         let task = session.dataTask(with: request) { [weak self] (data, response, error) in
             DispatchQueue.main.async {
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
                 guard let data = data,
                     let weatherResponse = try? JSONDecoder().decode(WeatherReponse.self, from: data) else {
                     self?.presentAlert("Service error")
